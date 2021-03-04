@@ -44,3 +44,12 @@ Generating Maskinporten token for a client with its own client key (from `create
    
 ./maskinporten token --scope scope1 --client-id my_client_id --key-id my_key_id
 ```
+
+# Various links and resources
+
+* [DigDir - how does Maskinporten work?](https://docs.digdir.no/maskinporten_auth_server-to-server-oauth2.html)
+* [Folkeregisteret - Get stated with Maskinporten](https://skatteetaten.github.io/folkeregisteret-api-dokumentasjon/maskinporten/)
+* [Maskinporten guide for API consumers](https://docs.digdir.no/maskinporten_guide_apikonsument.html)
+* [Maskinporten self-service API](https://docs.digdir.no/maskinporten_sjolvbetjening_api.html)
+* OAuth well-known endpoints for [IdPorten](https://docs.digdir.no/oidc_func_wellknown.html) and [Maskinporten](https://docs.digdir.no/maskinporten_func_wellknown.html)
+* [Admin-API for OIDC integrations](https://docs.digdir.no/oidc_api_admin.html), i.e. how establish and modify clients.
