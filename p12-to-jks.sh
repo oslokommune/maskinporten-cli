@@ -69,7 +69,7 @@ echo 3/4: Converting PEM to P12
 
 echo
 echo "--- ENTER YOUR NEW PASSWORD --- "
-openssl pkcs12 -export -out $OUTFILE.p12 \
+openssl pkcs12 -export -out $OUTFILE \
   -inkey privateKey.pem \
   -in publicCert.pem \
   -passin pass:$NEW_PW \
@@ -82,7 +82,7 @@ echo 4/4: Converting new P12 to JKS keystore
 echo
 echo "--- ENTER YOUR NEW PASSWORD --- "
 keytool -importkeystore \
-    -srckeystore $OUTFILE.p12 \
+    -srckeystore $OUTFILE \
     -srcstoretype pkcs12 \
     -destkeystore $OUTFILE.jks \
     -deststoretype jks \
