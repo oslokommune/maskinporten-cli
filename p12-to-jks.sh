@@ -8,7 +8,7 @@ DEST_ALIAS=$3
 function usage() {
   #echo "USAGE:   ./p12-to-jks <INPUT_CERT_P12_FILE> <OUTPUT_CERT_P12_FILE> <INPUT_ALIAS> <OUTPUT_ALIAS>"
   echo "USAGE:   ./p12-to-jks <INPUT_CERT_P12_FILE> <OUTPUT_CERT_P12_FILE> <OUTPUT_ALIAS>"
-  echo "EXAMPLE: ./p12-to-jks in.p12 out.p12 myalias"
+  echo "EXAMPLE: ./p12-to-jks in.p12 out myalias"
 }
 
 if [ -z "$INFILE" ]
