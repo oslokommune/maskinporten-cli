@@ -1,3 +1,4 @@
 #!/bin/bash
 
-java -jar build/libs/shadow-1.0-SNAPSHOT-all.jar "$@"
+file=$(ls build/libs/shadow* -v | tail -n 1)
+java -jar $file "$@"
