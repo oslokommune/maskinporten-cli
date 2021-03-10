@@ -1,10 +1,7 @@
 package no.kommune.oslo.maskinporten.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.prompt
-import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.options.*
 import no.kommune.oslo.jwt.JwtConfig
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -15,12 +12,23 @@ import java.security.cert.X509Certificate
 import java.util.*
 
 abstract class BaseCommand(name: String? = null) : CliktCommand(name = name) {
-    val env by option(envvar = "MASKINPORTEN_ENV").default("dev")
+    val env by option(envvar = "MASKINPORTEN_ENV")
+        .help("Maskinporten environment to use (dev / prod)")
+        .default("dev")
+        .check("Environment must be 'dev' or 'prod'") { it in setOf("dev", "prod") }
 
-    private val keystorePath by option(envvar = "MASKINPORTEN_KEYSTORE_PATH").required()
-    private val keystorePassword by option(envvar = "MASKINPORTEN_KEYSTORE_PASSWORD").prompt(hideInput = true)
-    private val keyAlias by option(envvar = "MASKINPORTEN_KEY_ALIAS").required()
-    private val keyPassword by option(envvar = "MASKINPORTEN_KEY_PASSWORD").prompt(hideInput = true)
+    private val keystorePath by option(envvar = "MASKINPORTEN_KEYSTORE_PATH")
+        .help("Path to PKCS12 keystore file containing client key or certificate ('virksomhetssertifikat')")
+        .required()
+    private val keystorePassword by option(envvar = "MASKINPORTEN_KEYSTORE_PASSWORD")
+        .help("Password to unlock PKCS12 keystore")
+        .prompt(hideInput = true)
+    private val keyAlias by option(envvar = "MASKINPORTEN_KEY_ALIAS")
+        .help("Alias/name of client key in PKCS12 keystore")
+        .required()
+    private val keyPassword by option(envvar = "MASKINPORTEN_KEY_PASSWORD")
+        .help("Password to unlock client key")
+        .prompt(hideInput = true)
 
     private val keystore: KeyStore = KeyStore.getInstance("pkcs12")
 

@@ -1,9 +1,6 @@
 package no.kommune.oslo.maskinporten.cli
 
-import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.prompt
-import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.options.*
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
 import java.io.File
@@ -12,9 +9,11 @@ import java.security.KeyStore
 import java.util.*
 
 class CreateClientKeyCommand : AdminCommand(name = "key") {
-    private val clientId by option().required()
-    private val out by option().default("out.p12")
-    private val password by option().prompt(requireConfirmation = true, hideInput = true)
+    private val clientId by option().help("Id of Maskinporten client to create new key for").required()
+    private val out by option().help("Name of client key output file").default("out.p12")
+    private val password by option()
+        .help("Password to set for new client key")
+        .prompt(requireConfirmation = true, hideInput = true)
 
     override fun run() {
         super.run()
