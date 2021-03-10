@@ -1,4 +1,4 @@
 #!/bin/bash
 
-file=$(ls build/libs/shadow* -v | tail -n 1)
+file=$(ls -v build/libs/shadow* | tail -n 1)
 java -jar $file "$@"
