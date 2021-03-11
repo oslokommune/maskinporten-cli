@@ -1,14 +1,14 @@
 package no.kommune.oslo.maskinporten.cli
 
-import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
-import com.github.ajalt.clikt.parameters.options.split
+import com.github.ajalt.clikt.parameters.options.*
 
 class CreateClientCommand : AdminCommand(name = "client") {
-    private val name by option().required()
-    private val description by option().required()
-    private val scopes by option().split(",").default(emptyList())
+    private val name by option().help("Name of client").required()
+    private val description by option().help("Description of client").required()
+    private val scopes by option()
+        .help("Comma separated list of scopes")
+        .split(",")
+        .default(emptyList())
 
     override fun run() {
         super.run()

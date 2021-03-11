@@ -2,16 +2,22 @@ package no.kommune.oslo.maskinporten.cli
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import no.kommune.oslo.jwt.JwtAuthClient
 import java.net.URL
 
 class TokenCommand : BaseCommand() {
-    private val scope by option().required()
-    private val clientId by option(envvar = "MASKINPORTEN_CLIENT_ID").required()
-    private val consumerOrg by option(envvar = "MASKINPORTEN_CONSUMER_ORG").required()
+    private val scope by option().help("Scope to generate token for").required()
+    private val clientId by option(envvar = "MASKINPORTEN_CLIENT_ID")
+        .help("Id of Maskinporten client to generate token for")
+        .required()
+    private val consumerOrg by option(envvar = "MASKINPORTEN_CONSUMER_ORG")
+        .help("Organization number of the API consumer")
+        .required()
     private val keyID by option(envvar = "MASKINPORTEN_KEY_ID")
+        .help("Key ID to use for Maskinporten client")
 
     private val om = ObjectMapper().registerKotlinModule()
 
