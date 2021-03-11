@@ -3,6 +3,7 @@ package no.kommune.oslo.maskinporten.cli
 import com.github.ajalt.clikt.parameters.options.*
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
+import no.kommune.oslo.maskinporten.client.NotFoundError
 import java.io.File
 import java.io.FileOutputStream
 import java.security.KeyStore
@@ -20,7 +21,12 @@ class CreateClientKeyCommand : AdminCommand(name = "key") {
 
         val adminClient = getAdminClient()
 
-        val client = adminClient.getClient(clientId)
+        val client = try {
+            adminClient.getClient(clientId)
+        } catch (ex: NotFoundError) {
+            log.info("No client with id $clientId")
+            return
+        }
         val clientName = client.get("client_name").textValue()
 
         val keyID = clientName + "-" + UUID.randomUUID()
@@ -39,10 +45,18 @@ class CreateClientKeyCommand : AdminCommand(name = "key") {
         keyStore.store(fos, password.toCharArray())
         fos.close()
 
-        val clientKeyResponse = adminClient.registerClientKey(clientId, jwk)
-        log.debug("Client key response: $clientKeyResponse")
+        try {
+            adminClient.registerClientKey(clientId, jwk)
 
-        println("Wrote key with id $keyID to new keystore ${keyFile.path} with alias 'client-key'")
+            log.info("Registered new key with id $keyID for client $clientId")
+            log.info("Wrote key to keystore at ${keyFile.path} with alias 'client-key'")
+            println("""{"keystore_path": "${keyFile.path}", "key_id": "$keyID", "key_alias": "client-key", "client_id": "$clientId"}""")
+        } catch (ex: Exception) {
+            when (ex) {
+                is NotFoundError -> log.info("No client with id $clientId")
+                else -> log.error("Unable to create client key", ex)
+            }
+        }
     }
 
 }

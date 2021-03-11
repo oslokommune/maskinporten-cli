@@ -22,6 +22,7 @@ class MaskinportenAdminApiClient(
     private val om = ObjectMapper()
 
     fun getClient(clientId: String): JsonNode {
+        log.debug("Fetching details for client $clientId")
         val token = authClient.getAccessToken(setOf("idporten:dcr.read"))
         val request = Request.Builder()
             .header("Content-Type", "application/json")
@@ -32,12 +33,12 @@ class MaskinportenAdminApiClient(
             .build()
 
         val response = httpUtil.post(request)
-        log.debug("Got response: $response")
 
         return om.readTree(response)
     }
 
     fun createClient(name: String, description: String, scopes: Collection<String>): String {
+        log.debug("Creating new client '$name' with scopes $scopes")
         val values = mapOf(
             "integration_type" to "maskinporten",
             "application_type" to "web",
@@ -54,8 +55,6 @@ class MaskinportenAdminApiClient(
 
         val token = authClient.getAccessToken(setOf("idporten:dcr.write"))
 
-        log.debug("POSTing: $body")
-
         val request = Request.Builder()
             .header("Content-Type", "application/json")
             .header("Accept", "*/*")
@@ -65,13 +64,13 @@ class MaskinportenAdminApiClient(
             .build()
 
         val response = httpUtil.post(request)
-        log.debug("Response: $response")
 
         val json = om.readTree(response)
         return json.get("client_id").textValue()
     }
 
     fun getClientKeys(clientId: String): String? {
+        log.debug("Fetching keys for client $clientId")
         val token = authClient.getAccessToken(setOf("idporten:dcr.read"))
 
         val request = Request.Builder()
@@ -82,10 +81,12 @@ class MaskinportenAdminApiClient(
             .get()
             .build()
 
-        return httpUtil.post(request)
+        val response = httpUtil.post(request)
+        return response
     }
 
      fun registerClientKey(clientId: String, publicJwk: RSAKey): String? {
+        log.debug("Registering new key with id ${publicJwk.keyID} for client $clientId")
         val key = mapOf(
             "alg" to "RS256",
             "kty" to publicJwk.keyType.toString(),
@@ -96,8 +97,6 @@ class MaskinportenAdminApiClient(
         )
         val keys = mapOf("keys" to listOf(key))
         val body = ObjectMapper().writeValueAsString(keys)
-
-        log.debug("Keys payload: $body")
 
          val token = authClient.getAccessToken(setOf("idporten:dcr.write"))
 

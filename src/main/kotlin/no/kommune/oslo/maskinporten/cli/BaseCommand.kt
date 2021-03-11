@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.parameters.options.*
 import no.kommune.oslo.jwt.JwtConfig
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.File
 import java.io.FileInputStream
 import java.security.KeyStore
 import java.security.PrivateKey
@@ -30,15 +31,29 @@ abstract class BaseCommand(name: String? = null) : CliktCommand(name = name) {
         .help("Password to unlock client key")
         .prompt(hideInput = true)
 
-    private val keystore: KeyStore = KeyStore.getInstance("pkcs12")
+    private lateinit var keystore: KeyStore
 
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
     val config = Properties()
 
     override fun run() {
-        keystore.load(FileInputStream(keystorePath), keystorePassword.toCharArray())
+        val keystoreFile = File(keystorePath)
+        val keystoreType = if (keystoreFile.extension == "jks") "jks" else "pkcs12"
+        keystore = KeyStore.getInstance(keystoreType)
+        keystore.load(FileInputStream(keystoreFile), keystorePassword.toCharArray())
         config.load(javaClass.classLoader.getResourceAsStream("$env.properties"))
+
+        log.debug("Configuration:")
+        log.debug("  Environment  : $env")
+        log.debug("  Keystore path: ${keystoreFile.absolutePath}")
+        log.debug("  Keystore type: ${keystore.type}")
+        log.debug("  Key alias    : $keyAlias")
+
+        val certificate = certificate()
+        if (certificate != null) {
+            log.debug("  Certificate  : ${certificate.subjectDN}")
+        }
     }
 
     fun getJwtConfig(issuer: String, consumerOrg: String? = null, keyID: String? = null) = JwtConfig(
@@ -49,7 +64,7 @@ abstract class BaseCommand(name: String? = null) : CliktCommand(name = name) {
         privateKey = privateKey()
     )
 
-    fun certificate(): X509Certificate = keystore.getCertificate(keyAlias) as X509Certificate
+    fun certificate(): X509Certificate? = keystore.getCertificate(keyAlias) as X509Certificate?
 
     private fun privateKey(): PrivateKey = keystore.getKey(keyAlias, keyPassword.toCharArray()) as PrivateKey
 

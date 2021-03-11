@@ -17,10 +17,14 @@ class HttpUtil {
 
     fun post(request: Request): String? {
         client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                throw RuntimeException("Unexpected code $response")
+            if (response.isSuccessful) {
+                return response.body?.string()
+            } else when (response.code) {
+                404 -> throw NotFoundError("Not found")
+                else -> throw RuntimeException("Unexpected code $response")
             }
-            return response.body?.string()
         }
     }
 }
+
+class NotFoundError(msg: String) : Exception(msg)

@@ -24,12 +24,22 @@ class TokenCommand : BaseCommand() {
     override fun run() {
         super.run()
 
+        log.debug("  Consumer org : $consumerOrg")
+        log.debug("  Client id    : $clientId")
+        if (keyID != null) {
+            log.debug("  Key id       : $keyID")
+        }
+
         val jwtConfig = getJwtConfig(issuer = clientId, consumerOrg, keyID)
         val wellKnownEndpoint = URL(config.getProperty("maskinporten.oidc.wellknown"))
 
-        val jwtAuthClient = JwtAuthClient(jwtConfig, wellKnownEndpoint)
-        val accessToken = jwtAuthClient.getAccessToken(setOf(scope))
-        println(om.writeValueAsString(accessToken))
+        try {
+            val jwtAuthClient = JwtAuthClient(jwtConfig, wellKnownEndpoint)
+            val accessToken = jwtAuthClient.getAccessToken(setOf(scope))
+            println(om.writeValueAsString(accessToken))
+        } catch (ex: Exception) {
+            log.error("Unable to generate Maskinporten token", ex)
+        }
     }
 
 }

@@ -38,9 +38,7 @@ class JwtGenerator(private val jwtConfig: JwtConfig) {
         if (jwtConfig.consumerOrg != null) {
             builder = builder.claim("consumer_org", jwtConfig.consumerOrg)
         }
-        val claims = builder.build()
-        log.debug("Creating token with claims: [{}]", claims)
-        return claims
+        return builder.build()
     }
 
     private fun jwsHeader(): JWSHeader {
@@ -51,9 +49,7 @@ class JwtGenerator(private val jwtConfig: JwtConfig) {
             val chain = listOf(Base64.encode(jwtConfig.certificate.encoded))
             builder = builder.x509CertChain(chain) // For å legge til x5c-element i JWT
         }
-        val jwsHeader = builder.build()
-        log.debug("JWS header: $jwsHeader")
-        return jwsHeader
+        return builder.build()
     }
 
     private fun jwsSigner(): RSASSASigner {
