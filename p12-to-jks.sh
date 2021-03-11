@@ -2,11 +2,9 @@
 
 INFILE=$1
 OUTFILE=$2
-#SRC_ALIAS=$3
 DEST_ALIAS=$3
 
 function usage() {
-  #echo "USAGE:   ./p12-to-jks <INPUT_CERT_P12_FILE> <OUTPUT_CERT_P12_FILE> <INPUT_ALIAS> <OUTPUT_ALIAS>"
   echo "USAGE:   ./p12-to-jks <INPUT_CERT_P12_FILE> <OUTPUT_CERT_P12_FILE> <OUTPUT_ALIAS>"
   echo "EXAMPLE: ./p12-to-jks in.p12 out myalias"
 }
@@ -25,13 +23,6 @@ then
       exit 2
 fi
 
-#if [ -z "$SRC_ALIAS" ]
-#then
-#      echo "Required: src alias"
-#      usage
-#      exit 2
-#fi
-
 if [ -z "$DEST_ALIAS" ]
 then
       echo "Required: dest alias"
@@ -39,7 +30,7 @@ then
       exit 2
 fi
 
-echo 1/3: Creating temporary new P12 file with new password
+echo 1/5: Creating temporary new P12 file with new password
 echo
 echo "--- ENTER YOUR NEW PASSWORD: "
 read -r -s NEW_PW
@@ -47,17 +38,18 @@ echo
 
 echo Parameters
 echo Infile: $INFILE
-echo Outfile: $OUTFILE
+echo Outfile: $OUTFILE.p12
+echo
 
-echo 1/4: Extracting private key PEM
+echo 2/5: Extracting private key PEM
 echo
 echo "--- ENTER YOUR EXISTING CERTIFICATE PASSWORD --- "
-openssl pkcs12 -in $INFILE -nocerts -out privateKey.pem -passout pass:$NEW_PW
-
-echo 2/4: Extracting public key PEM
 echo
-echo "--- ENTER YOUR EXISTING CERTIFICATE PASSWORD --- "
-openssl pkcs12 -in $INFILE -clcerts -nokeys -out publicCert.pem
+read -r -s CERT_PW
+openssl pkcs12 -in "$INFILE" -nocerts -out privateKey.pem -passin pass:$CERT_PW -passout pass:$NEW_PW
+
+echo 3/5: Extracting public key PEM
+openssl pkcs12 -in "$INFILE" -clcerts -nokeys -out publicCert.pem -passin pass:$CERT_PW
 
 FRIENDLY_NAME=`cat privateKey.pem | grep friendlyName | awk '{print substr($0, 19, 150); exit}'`
 
@@ -65,27 +57,29 @@ SRC_ALIAS=$FRIENDLY_NAME
 echo Found alias: $FRIENDLY_NAME
 echo
 
-echo 3/4: Converting PEM to P12
+echo 4/5: Converting PEM to P12
 
-echo
-echo "--- ENTER YOUR NEW PASSWORD --- "
+#echo
+#echo "--- ENTER YOUR NEW PASSWORD --- "
 openssl pkcs12 -export -out $OUTFILE.p12 \
   -inkey privateKey.pem \
   -in publicCert.pem \
   -passin pass:$NEW_PW \
+  -passout pass:$NEW_PW \
   -name "$FRIENDLY_NAME"
 
 rm privateKey.pem publicCert.pem
 
 # Convert to JKS
-echo 4/4: Converting new P12 to JKS keystore
-echo
-echo "--- ENTER YOUR NEW PASSWORD --- "
+echo 5/5: Converting new P12 to JKS keystore
+#echo
+#echo "--- ENTER YOUR NEW PASSWORD --- "
 keytool -importkeystore \
     -srckeystore $OUTFILE.p12 \
     -srcstoretype pkcs12 \
     -destkeystore $OUTFILE.jks \
     -deststoretype jks \
+    -srcstorepass $NEW_PW\
     -deststorepass $NEW_PW \
     -srcalias "$SRC_ALIAS" \
     -destalias "$DEST_ALIAS"
