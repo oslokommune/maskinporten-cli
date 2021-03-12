@@ -32,9 +32,13 @@ class JwtAuthClient(jwtConfig: JwtConfig, wellKnownEndpoint: URL) {
         val wellKnownConfig = om.readTree(wellKnownEndpoint)
         audience = wellKnownConfig.get("issuer").textValue()
         tokenEndpoint = wellKnownConfig.get("token_endpoint").textValue()
+        log.debug("Maskinporten auth client:")
+        log.debug("  Audience: $audience")
+        log.debug("  Endpoint: $tokenEndpoint")
     }
 
     fun getAccessToken(scopes: Set<String>): AccessToken {
+        log.debug("Getting Maskinporten token for scopes $scopes")
         val formBody = FormBody.Builder()
             .add("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
             .add("assertion", jwtGenerator.generateJwt(audience, scopes))
@@ -46,23 +50,23 @@ class JwtAuthClient(jwtConfig: JwtConfig, wellKnownEndpoint: URL) {
             .post(formBody)
             .build()
 
-        log.debug("Henter token fra maskinporten..")
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                val resp = response.body?.string()
-                log.warn("Feilet mot maskinporten [{}]: {}", response.code, resp)
-                throw JwtAuthException("Unexpected code $response")
+                val responseBody = response.body?.string() ?: "Unknown error [${response.code}]"
+                throw JwtAuthException(responseBody)
             }
             try {
-                return om.readValue(response.body?.string(), AccessToken::class.java)
+                val token = om.readValue(response.body?.string(), AccessToken::class.java)
+                log.debug("Received Maskinporten token valid for ${token.expires_in} seconds")
+                return token
             } catch (ex: Exception) {
                 when (ex) {
                     is JsonProcessingException, is JsonMappingException -> {
-                        log.error("Kunne ikke prosessere response {}: {}", ex.message, ex.stackTrace)
+                        log.error("Could not process response: ${ex.message}", ex)
                         throw ex
                     }
                     else -> {
-                        log.error("Ukjent feil {}: {}", ex.message, ex.stackTrace)
+                        log.error("Unknown error: ${ex.message}", ex)
                         throw ex
                     }
 

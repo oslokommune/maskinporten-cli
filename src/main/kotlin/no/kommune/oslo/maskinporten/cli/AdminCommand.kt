@@ -12,6 +12,11 @@ abstract class AdminCommand(name: String? = null) : BaseCommand(name) {
         .help("Client id of Maskinporten admin client")
         .required()
 
+    override fun run() {
+        super.run()
+        log.debug("  Admin client : $adminClientId")
+    }
+
     fun getAdminClient(): MaskinportenAdminApiClient {
         val wellKnownEndpoint = URL(config.getProperty("idporten.oidc.wellknown"))
         val clientsApiEndpoint = URL(config.getProperty("maskinporten.clients.endpoint"))

@@ -13,8 +13,13 @@ class CreateClientCommand : AdminCommand(name = "client") {
     override fun run() {
         super.run()
 
-        val clientId = getAdminClient().createClient(name, description, scopes)
-        println("Client id: $clientId")
+        try {
+            val clientId = getAdminClient().createClient(name, description, scopes)
+            log.info("Created Maskinporten client with id $clientId")
+            println("""{"client_id": "$clientId"}""")
+        } catch (ex: Exception) {
+            log.error("Unable to create Maskinporten client", ex)
+        }
     }
 }
 
