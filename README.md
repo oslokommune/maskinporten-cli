@@ -42,17 +42,31 @@ keytool -v -list -keystore /path/to/my_cert.p12
 
 ## Running the CLI
 
+You can show documentation of the available commands and options using the `--help` (or `-h`) argument:
+```bash
+$ ./maskinporten -h
+Usage: maskinporten [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -h, --help  Show this message and exit
+
+Commands:
+  create  Creates a client or keys in Maskinporten
+  list    List client keys from Maskinporten
+  token   Generate a token in Maskinporten
+```
+
+Here is an example of creating a client and key:
 ```bash
 # Commands:
 ./maskinporten create client --name myclient --description "Test client" --scopes scope1,scope2
 ./maskinporten create key --client-id my_client_id
 ./maskinporten list keys --client-id my_client_id
-./maskinporten token --scope scope1 --client-id my_client_id
 
 # Or, setup Intellij run configuration doing the same
 ```
 
-Generating Maskinporten token for a client with its own client key (from `create key`):
+Generating a Maskinporten token for a client with its own client key (from `create key` above):
 ```bash
 # You need the same config options as above, but replace the keystore,
 # key alias and passwords environment variables with the values from
