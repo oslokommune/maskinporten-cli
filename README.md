@@ -1,6 +1,6 @@
 # Maskinporten CLI
 
-A command line tool for creating clients and keys in [Maskinporten](https://samarbeid.digdir.no/maskinporten/maskinporten/25).
+A command line tool (CLI) for admin of clients and keys in [Maskinporten](https://samarbeid.digdir.no/maskinporten/maskinporten/25).
 
 ## Prerequisites
 
@@ -8,25 +8,41 @@ A command line tool for creating clients and keys in [Maskinporten](https://sama
 Maskinporten.
 * An admin client issued by Digdir: https://docs.digdir.no/maskinporten_sjolvbetjening_api.html#tilgang-administrasjon-av-api
 
-## Run
+## Build the CLI application
+
+The Maskinporten CLI is built using [Gradle](https://gradle.org/):
 
 ```bash
-# Optionally, change password of virksomhetssertifikat as it's highly sensitive
-./p12-to-jks.sh in.p12 out.p12 my_org_test
-
-# Just ignore the produced JKS file, we actually only need the p12 file.
-
-# Run application
-export MASKINPORTEN_ENV=dev # optional, defaults to dev environment (ver2 for Maskinporten)
-export MASKINPORTEN_KEYSTORE_PATH=/tmp/my-cert.p12 # p12 file from last step
-export MASKINPORTEN_KEYSTORE_PASSWORD=some_keystore_password # the password you set when running p12-to-jks.sh
-export MASKINPORTEN_KEY_ALIAS=my_org_test # alias of key in keystore
-export MASKINPORTEN_KEY_PASSWORD=some_key_password # the password you set when running p12-to-jks.sh
-export MASKINPORTEN_ADMIN_CLIENT_ID=someclient # client ID received from Maskinporten
-export MASKINPORTEN_CONSUMER_ORG=123456789 # your organization number in Enhetsregisteret
-
 ./gradlew build
+```
 
+## Configuration
+
+Before using the Maskinporten CLI, you need to configure it using environment variables, as shown below:
+
+Example configuration:
+```bash
+# Run application
+export MASKINPORTEN_ENV=dev # 'prod' or 'dev'. Optional, defaults to dev environment ('ver2' for Maskinporten)
+export MASKINPORTEN_ADMIN_CLIENT_ID=someclient # Admin client ID received from Maskinporten
+export MASKINPORTEN_CONSUMER_ORG=123456789 # Your organization number in Enhetsregisteret
+export MASKINPORTEN_KEYSTORE_PATH=/path/to/my-cert.p12 # Path to the keystore containing your 'virksomhetssertifikat'
+export MASKINPORTEN_KEYSTORE_PASSWORD=my_keystore_password # Password for your 'virksomhetssertifikat' keystore
+export MASKINPORTEN_KEY_ALIAS=my_key_alias # Alias of key in keystore
+export MASKINPORTEN_KEY_PASSWORD=my_key_password # The password of your 'virksomhetssertifikat'
+```
+
+You can also use command line arguments to set or override these values. The command line arguments use similar names but without the `maskinporten` prefix, e.g. `--keystore-password`.
+
+The key password may be the same as your keystore password. To find the key aliases in your keystore file, you can use the `keytool` command:
+
+```bash
+keytool -v -list -keystore /path/to/my_cert.p12
+```
+
+## Running the CLI
+
+```bash
 # Commands:
 ./maskinporten create client --name myclient --description "Test client" --scopes scope1,scope2
 ./maskinporten create key --client-id my_client_id
