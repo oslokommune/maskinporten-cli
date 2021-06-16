@@ -8,7 +8,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import no.kommune.oslo.jwt.JwtAuthClient
 import java.net.URL
 
-class TokenCommand : BaseCommand() {
+class TokenCommand() : BaseCommand(help = "Generate a token in Maskinporten") {
     private val scope by option().help("Scope to generate token for").required()
     private val clientId by option(envvar = "MASKINPORTEN_CLIENT_ID")
         .help("Id of Maskinporten client to generate token for")
