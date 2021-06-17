@@ -9,7 +9,7 @@ import java.io.FileOutputStream
 import java.security.KeyStore
 import java.util.*
 
-class CreateClientKeyCommand : AdminCommand(name = "key") {
+class CreateClientKeyCommand : AdminCommand(name = "key", help = "Creates a client key in Maskinporten") {
     private val clientId by option().help("Id of Maskinporten client to create new key for").required()
     private val out by option().help("Name of client key output file").default("out.p12")
     private val password by option()

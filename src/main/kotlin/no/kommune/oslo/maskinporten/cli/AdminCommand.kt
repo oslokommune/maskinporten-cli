@@ -7,7 +7,7 @@ import no.kommune.oslo.jwt.JwtAuthClient
 import no.kommune.oslo.maskinporten.client.MaskinportenAdminApiClient
 import java.net.URL
 
-abstract class AdminCommand(name: String? = null) : BaseCommand(name) {
+abstract class AdminCommand(name: String? = null, help: String = "") : BaseCommand(name, help = help) {
     private val adminClientId by option(envvar = "MASKINPORTEN_ADMIN_CLIENT_ID")
         .help("Client id of Maskinporten admin client")
         .required()

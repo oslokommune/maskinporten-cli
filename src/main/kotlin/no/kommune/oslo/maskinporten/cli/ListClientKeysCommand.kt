@@ -5,7 +5,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import no.kommune.oslo.maskinporten.client.NotFoundError
 
-class ListClientKeysCommand : AdminCommand(name = "keys") {
+class ListClientKeysCommand : AdminCommand(name = "keys", help = "List existing keys for a client") {
     private val clientId by option().help("Id of Maskinporten client to list keys for").required()
 
     override fun run() {

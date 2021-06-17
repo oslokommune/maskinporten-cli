@@ -2,7 +2,7 @@ package no.kommune.oslo.maskinporten.cli
 
 import com.github.ajalt.clikt.parameters.options.*
 
-class CreateClientCommand : AdminCommand(name = "client") {
+class CreateClientCommand : AdminCommand(name = "client", help = "Creates a client in Maskinporten") {
     private val name by option().help("Name of client").required()
     private val description by option().help("Description of client").required()
     private val scopes by option()

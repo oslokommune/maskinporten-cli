@@ -12,7 +12,7 @@ import java.security.PrivateKey
 import java.security.cert.X509Certificate
 import java.util.*
 
-abstract class BaseCommand(name: String? = null) : CliktCommand(name = name) {
+abstract class BaseCommand(name: String? = null, help: String = "") : CliktCommand(name = name, help = help) {
     val env by option(envvar = "MASKINPORTEN_ENV")
         .help("Maskinporten environment to use (dev / prod)")
         .default("dev")
