@@ -29,7 +29,7 @@ export MASKINPORTEN_CONSUMER_ORG=123456789 # Your organization number in Enhetsr
 export MASKINPORTEN_KEYSTORE_PATH=/path/to/my-cert.p12 # Path to the keystore containing your 'virksomhetssertifikat'
 export MASKINPORTEN_KEYSTORE_PASSWORD=my_keystore_password # Password for your 'virksomhetssertifikat' keystore
 export MASKINPORTEN_KEY_ALIAS=my_key_alias # Alias of key in keystore
-export MASKINPORTEN_KEY_PASSWORD=my_key_password # The password of your 'virksomhetssertifikat'
+export MASKINPORTEN_KEY_PASSWORD=my_key_password # Password for your 'virksomhetssertifikat'
 ```
 
 You can also use command line arguments to set or override these values. The command line arguments use similar names but without the `maskinporten` prefix, e.g. `--keystore-password`.
