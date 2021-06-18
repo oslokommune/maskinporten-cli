@@ -5,8 +5,8 @@ A command line tool (CLI) for admin of clients and keys in [Maskinporten](https:
 ## Prerequisites
 
 * A [virksomhetssertifikat](https://docs.digdir.no/eformidling_virksomhetssertifikat.html) to authenticate with
-Maskinporten.
-* An admin client issued by Digdir: https://docs.digdir.no/maskinporten_sjolvbetjening_api.html#tilgang-administrasjon-av-api
+Maskinporten. Can be acquired from [Buypass](https://www.buypass.no/produkter/virksomhetssertifikat-esegl) or [Commfides](https://www.commfides.com/commfides-virksomhetssertifikat/).
+* A Maskinporten admin client issued by Digdir: https://docs.digdir.no/maskinporten_sjolvbetjening_api.html#tilgang-administrasjon-av-api
 
 ## Build the CLI application
 
