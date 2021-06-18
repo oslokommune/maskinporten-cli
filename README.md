@@ -40,7 +40,7 @@ The key password may be the same as your keystore password. To find the key alia
 keytool -v -list -keystore /path/to/my_cert.p12
 ```
 
-## Running the CLI
+## Usage
 
 You can show documentation of the available commands and options using the `--help` (or `-h`) argument:
 ```bash
@@ -56,7 +56,7 @@ Commands:
   token   Generate a token in Maskinporten
 ```
 
-Here is an example of creating a client and key:
+An example of creating a client and key:
 ```bash
 # Commands:
 ./maskinporten create client --name myclient --description "Test client" --scopes scope1,scope2
