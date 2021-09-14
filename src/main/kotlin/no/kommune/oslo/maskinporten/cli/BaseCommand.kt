@@ -11,6 +11,7 @@ import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.cert.X509Certificate
 import java.util.*
+import kotlin.system.exitProcess
 
 abstract class BaseCommand(name: String? = null, help: String = "") : CliktCommand(name = name, help = help) {
     val env by option(envvar = "MASKINPORTEN_ENV")
@@ -49,6 +50,13 @@ abstract class BaseCommand(name: String? = null, help: String = "") : CliktComma
         log.debug("  Keystore path: ${keystoreFile.absolutePath}")
         log.debug("  Keystore type: ${keystore.type}")
         log.debug("  Key alias    : $keyAlias")
+
+        val keyAliases = keystore.aliases().toList()
+        if (!keyAliases.contains(keyAlias)) {
+            log.error("Key alias '$keyAlias' not found in keystore.")
+            log.error("Available key aliases: " + keyAliases.map { "'$it'" }.joinToString(", "))
+            exitProcess(1)
+        }
 
         val certificate = certificate()
         if (certificate != null) {
