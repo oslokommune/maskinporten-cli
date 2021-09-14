@@ -1,7 +1,9 @@
 package no.kommune.oslo.maskinporten.client
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.node.ArrayNode
 import com.nimbusds.jose.jwk.RSAKey
 import no.kommune.oslo.jwt.JwtAuthClient
 import okhttp3.Request
@@ -9,6 +11,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.net.URL
+import java.util.*
 
 class MaskinportenAdminApiClient(
     private val clientsApiEndpoint: URL,
@@ -20,6 +23,22 @@ class MaskinportenAdminApiClient(
     }
 
     private val om = ObjectMapper()
+
+    fun getClients(): List<JsonNode> {
+        log.debug("Fetching Maskinporten clients")
+        val token = authClient.getAccessToken(setOf("idporten:dcr.read"))
+        val request = Request.Builder()
+            .header("Content-Type", "application/json")
+            .header("Accept", "*/*")
+            .header("Authorization", "Bearer ${token.access_token}")
+            .url("$clientsApiEndpoint")
+            .get()
+            .build()
+
+        val response = httpUtil.post(request)
+
+        return om.readValue(response, Array<JsonNode>::class.java).toList()
+    }
 
     fun getClient(clientId: String): JsonNode {
         log.debug("Fetching details for client $clientId")

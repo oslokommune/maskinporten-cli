@@ -16,6 +16,7 @@ fun main(args: Array<String>) {
             CreateClientKeyCommand()
         ),
         ListCommand().subcommands(
+            ListClientsCommand(),
             ListClientKeysCommand()
         ),
         TokenCommand()
