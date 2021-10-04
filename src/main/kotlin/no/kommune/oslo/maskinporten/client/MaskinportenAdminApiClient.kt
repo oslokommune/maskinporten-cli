@@ -1,9 +1,7 @@
 package no.kommune.oslo.maskinporten.client
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ArrayNode
 import com.nimbusds.jose.jwk.RSAKey
 import no.kommune.oslo.jwt.JwtAuthClient
 import okhttp3.Request
@@ -58,6 +56,47 @@ class MaskinportenAdminApiClient(
 
     fun createClient(name: String, description: String, scopes: Collection<String>): String {
         log.debug("Creating new client '$name' with scopes $scopes")
+
+        val token = authClient.getAccessToken(setOf("idporten:dcr.write"))
+
+        val request = Request.Builder()
+            .header("Content-Type", "application/json")
+            .header("Accept", "*/*")
+            .header("Authorization", "Bearer ${token.access_token}")
+            .url(clientsApiEndpoint)
+            .post(clientPayload(name, description, scopes).toRequestBody())
+            .build()
+
+        val response = httpUtil.post(request)
+
+        val json = om.readTree(response)
+        return json.get("client_id").textValue()
+    }
+
+    fun updateClient(clientId: String, name: String, description: String, scopes: Collection<String>): String {
+        log.debug("Updating client '$clientId' with name '$name', description '$description' and scopes $scopes")
+
+        val token = authClient.getAccessToken(setOf("idporten:dcr.write"))
+
+        val request = Request.Builder()
+            .header("Content-Type", "application/json")
+            .header("Accept", "*/*")
+            .header("Authorization", "Bearer ${token.access_token}")
+            .url("$clientsApiEndpoint$clientId")
+            .put(clientPayload(name, description, scopes).toRequestBody())
+            .build()
+
+        val response = httpUtil.post(request)
+
+        val json = om.readTree(response)
+        return json.get("client_id").textValue()
+    }
+
+    private fun clientPayload(
+        name: String,
+        description: String,
+        scopes: Collection<String>
+    ): String {
         val values = mapOf(
             "integration_type" to "maskinporten",
             "application_type" to "web",
@@ -70,22 +109,7 @@ class MaskinportenAdminApiClient(
             "scopes" to scopes,
         )
 
-        val body: String = om.writeValueAsString(values)
-
-        val token = authClient.getAccessToken(setOf("idporten:dcr.write"))
-
-        val request = Request.Builder()
-            .header("Content-Type", "application/json")
-            .header("Accept", "*/*")
-            .header("Authorization", "Bearer ${token.access_token}")
-            .url(clientsApiEndpoint)
-            .post(body.toRequestBody())
-            .build()
-
-        val response = httpUtil.post(request)
-
-        val json = om.readTree(response)
-        return json.get("client_id").textValue()
+        return om.writeValueAsString(values)
     }
 
     fun getClientKeys(clientId: String): String? {
