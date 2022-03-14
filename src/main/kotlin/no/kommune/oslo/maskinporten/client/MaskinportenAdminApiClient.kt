@@ -18,6 +18,7 @@ class MaskinportenAdminApiClient(
 ) {
     companion object {
         private val log: Logger = LoggerFactory.getLogger(MaskinportenAdminApiClient::class.java)
+        private const val MAX_KEYS = 5
     }
 
     private val om = ObjectMapper()
@@ -128,7 +129,7 @@ class MaskinportenAdminApiClient(
         return response
     }
 
-     fun registerClientKey(clientId: String, publicJwk: RSAKey): String? {
+    fun registerClientKey(clientId: String, publicJwk: RSAKey, overwrite: Boolean = false): String? {
         log.debug("Registering new key with id ${publicJwk.keyID} for client $clientId")
         val key = mapOf(
             "alg" to "RS256",
@@ -138,12 +139,31 @@ class MaskinportenAdminApiClient(
             "e" to publicJwk.publicExponent.toString(),
             "n" to publicJwk.modulus.toString()
         )
-        val keys = mapOf("keys" to listOf(key))
-        val body = ObjectMapper().writeValueAsString(keys)
+        val keys = mutableListOf(key)
 
-         val token = authClient.getAccessToken(setOf("idporten:dcr.write"))
+        if (!overwrite) {
+            val oldKeys = om.readTree(getClientKeys(clientId)).get("keys")
 
-         val request = Request.Builder()
+            if (oldKeys.count() >= MAX_KEYS) {
+                throw TooManyKeysError(clientId, MAX_KEYS)
+            }
+
+            for (oldKey in oldKeys) {
+                keys.add(mapOf(
+                    "alg" to oldKey.get("alg").asText(),
+                    "kty" to oldKey.get("kty").asText(),
+                    "use" to oldKey.get("use").asText(),
+                    "kid" to oldKey.get("kid").asText(),
+                    "e" to oldKey.get("e").asText(),
+                    "n" to oldKey.get("n").asText(),
+                ))
+            }
+        }
+
+        val body = ObjectMapper().writeValueAsString(mapOf("keys" to keys))
+        val token = authClient.getAccessToken(setOf("idporten:dcr.write"))
+
+        val request = Request.Builder()
             .header("Content-Type", "application/json")
             .header("Accept", "*/*")
             .header("Authorization", "Bearer ${token.access_token}")
@@ -154,3 +174,6 @@ class MaskinportenAdminApiClient(
         return httpUtil.post(request)
     }
 }
+
+class TooManyKeysError(clientId: String, maxKeys: Int) :
+    Exception("Client $clientId already has the maximum number of registered keys ($maxKeys)")
