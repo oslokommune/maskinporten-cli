@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.parameters.options.*
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator
 import no.kommune.oslo.maskinporten.client.NotFoundError
+import no.kommune.oslo.maskinporten.client.TooManyKeysError
 import java.io.File
 import java.io.FileOutputStream
 import java.security.KeyStore
@@ -15,6 +16,9 @@ class CreateClientKeyCommand : AdminCommand(name = "key", help = "Creates a clie
     private val password by option()
         .help("Password to set for new client key")
         .prompt(requireConfirmation = true, hideInput = true)
+    private val overwrite by option("--overwrite")
+        .flag()
+        .help("Overwrite existing client key(s)")
 
     override fun run() {
         super.run()
@@ -46,7 +50,7 @@ class CreateClientKeyCommand : AdminCommand(name = "key", help = "Creates a clie
         fos.close()
 
         try {
-            adminClient.registerClientKey(clientId, jwk)
+            adminClient.registerClientKey(clientId, jwk, overwrite)
 
             log.info("Registered new key with id $keyID for client $clientId")
             log.info("Wrote key to keystore at ${keyFile.path} with alias 'client-key'")
@@ -54,10 +58,10 @@ class CreateClientKeyCommand : AdminCommand(name = "key", help = "Creates a clie
         } catch (ex: Exception) {
             when (ex) {
                 is NotFoundError -> log.info("No client with id $clientId")
+                is TooManyKeysError -> log.info(ex.toString())
                 else -> log.error("Unable to create client key", ex)
             }
         }
     }
 
 }
-
