@@ -144,19 +144,21 @@ class MaskinportenAdminApiClient(
         if (!overwrite) {
             val oldKeys = om.readTree(getClientKeys(clientId)).get("keys")
 
-            if (oldKeys.count() >= MAX_KEYS) {
-                throw TooManyKeysError(clientId, MAX_KEYS)
-            }
+            if (oldKeys != null) {
+                if (oldKeys.count() >= MAX_KEYS) {
+                    throw TooManyKeysError(clientId, MAX_KEYS)
+                }
 
-            for (oldKey in oldKeys) {
-                keys.add(mapOf(
-                    "alg" to oldKey.get("alg").asText(),
-                    "kty" to oldKey.get("kty").asText(),
-                    "use" to oldKey.get("use").asText(),
-                    "kid" to oldKey.get("kid").asText(),
-                    "e" to oldKey.get("e").asText(),
-                    "n" to oldKey.get("n").asText(),
-                ))
+                for (oldKey in oldKeys) {
+                    keys.add(mapOf(
+                        "alg" to oldKey.get("alg").asText(),
+                        "kty" to oldKey.get("kty").asText(),
+                        "use" to oldKey.get("use").asText(),
+                        "kid" to oldKey.get("kid").asText(),
+                        "e" to oldKey.get("e").asText(),
+                        "n" to oldKey.get("n").asText(),
+                    ))
+                }
             }
         }
 
