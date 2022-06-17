@@ -2,6 +2,12 @@
 
 A command line tool (CLI) for admin of clients and keys in [Maskinporten](https://samarbeid.digdir.no/maskinporten/maskinporten/25).
 
+***NOTE: This project is no longer maintained.***
+
+***Teams in Oslo Origo is encouraged to use
+[okdata-cli](https://github.com/oslokommune/okdata-cli/) instead for accessing
+public registers.***
+
 ## Prerequisites
 
 * A [virksomhetssertifikat](https://docs.digdir.no/eformidling_virksomhetssertifikat.html) to authenticate with
@@ -71,7 +77,7 @@ Generating a Maskinporten token for a client with its own client key (from `crea
 # You need the same config options as above, but replace the keystore,
 # key alias and passwords environment variables with the values from
 # the "create key" command.
-   
+
 ./maskinporten token --scope scope1 --client-id my_client_id --key-id my_key_id
 ```
 
